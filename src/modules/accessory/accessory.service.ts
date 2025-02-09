@@ -9,6 +9,15 @@ import {
   ClearCookieInput,
 } from './accessory.types'
 
+
+// interface SessionType {
+//   expires: Date;
+//   secret?: string | string[] | Buffer | Buffer[] | fastifyCookie.Signer | SignerBase;
+//   algorithm?: string;
+//   hook?: HookType | false;
+//   parseOptions?: fastifyCookie.CookieSerializeOptions;
+// } 
+
 @Injectable()
 export class AccessoryService {
   constructor(
@@ -85,30 +94,4 @@ export class AccessoryService {
 
   /* Session service */
 
-  async regenerateSession(input: RegenerateSessionInput) {
-    const maxAge = this.env.getSessionMaxAge()
-    const sessionExpires = new Date(Date.now() + maxAge)
-    const options = {
-      ...input.request.server.cookieOptions,
-      expires: sessionExpires,
-    }
-
-    let sessionId = ''
-    // vitest request has no session, so we should ignore creating cookies in this way
-    if (input.request.session) {
-      await input.request.session.regenerate()
-      sessionId = input.request.session.sessionId || undefined
-      input.request.session.userId = input.userId
-      input.request.session.userRole = input.userRole || Role.GUEST
-
-      this.createCookie({
-        reply: input.reply,
-        name: 'sessionId',
-        value: sessionId,
-        options,
-      })
-    }
-
-    return { sessionId, options }
-  }
 }
